@@ -1,21 +1,37 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class move_basket : MonoBehaviour
+public class Basket : MonoBehaviour
 {
-    public float fixedY = -3f;
-    void Start()
-    {
-        
-    }
-    public float minX = -8f;
-    public float maxX = 8f;
-    // Update is called once per frame
+    // バスケットのY位置を固定したい場合
+    [SerializeField] float fixedY = -2f;
+
     void Update()
     {
-        Vector3 mouse = Input.mousePosition;
-        Vector3 worldPos = Camera.main.ScreenToWorldPoint(mouse);
-        float clampedX = Mathf.Clamp(worldPos.x, minX, maxX);
-        transform.position = new Vector3(worldPos.x, fixedY, 0f);
+        MoveWithMouse();
+    }
+
+    void MoveWithMouse()
+    {
+        // マウスのスクリーン座標 → ワールド座標に変換
+        Vector3 mousePos = Input.mousePosition;
+        mousePos.z = 10f; // カメラからの距離（2Dでは重要）
+
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
+
+        // Xだけマウスに追従、Yは固定
+        transform.position = new Vector3(
+            worldPos.x,
+            fixedY,
+            transform.position.z
+        );
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Fruit"))
+        {
+            Debug.Log("果物キャッチ！");
+            Destroy(other.gameObject);
+        }
     }
 }
